@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<title>Spring Boot : Livros</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link rel="stylesheet" type="text/css" href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="webjars/EasyAutocomplete/1.3.3/dist/easy-autocomplete.themes.css" />
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<script type="text/javascript" src="webjars/jquery/3.6.3/jquery.min.js"></script>
+		<script type="text/javascript" src="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="webjars/EasyAutocomplete/1.3.3/dist/jquery.easy-autocomplete.js"></script>  
+
+		<script type="text/javascript">
+			$(document).ready(function () {
+				moment.locale('pt-br');
+				
+				$('#filtro').on('input', (e) => {
+	                $.ajax({ 
+						type : 'GET', 
+						url : '/api/funcionarios/buscar?nome=' + $('#filtro').val(),
+						success : function(dados) {
+							let total = 0; 
+							$('#funcionarios tbody').empty();
+							
+							$.each(dados, function(d, resultado) {
+								let data = new moment(resultado.nascimento).format('L');
+								
+								$('#funcionarios tbody').append(
+									'<tr>' + 
+										'<td class="text-nowrap">' + resultado.nome + '</td>' + 
+										"<td class=\"text-nowrap\">" + resultado.numDep + '</td>' + 
+										"<td class=\"text-nowrap\">" + resultado.salario.toLocaleString('pt-BR', { 
+																					                              currency: 'BRL', 
+																					                              style: 'currency'
+																					                          }) + '</td>' +
+										"<td class=\"text-nowrap\">" + data + '</td>' + 
+									'</tr>');
+								total++; 
+							});
+							
+							if (total === 0) {
+								$('#resultados').text('Nenhum registro encontrado!');
+							} else if(total === 1) {
+								$('#resultados').text('1 registro encontrado!');
+							} else {
+								$('#resultados').text(total + ' registros encontrados!');
+							}
+						}
+					}); 
+	            });
+			});
+		</script>
+		
+		<h1 class="text-center mt-2">
+  			<img alt="Spring" class="block" id="springlogo" src="spring-logo.svg" width="300">
+  			Spring Boot : Funcionários
+ 		</h1>
+ 		
+ 		<form class="mt-1">
+			Buscar:
+  			<input type="text" id="filtro" autofocus="autofocus" class="form-control" />
+ 		</form>
+ 		
+ 		<table id="funcionarios" class="table table-striped table-condensed table-hover table-responsive">
+            <caption style="font-size: 2em; font-weight: bold; text-align: center; caption-side: top">
+                Funcionários
+            </caption>
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Nome</th>
+                    <th># Dependentes</th>
+                    <th>Salário</th>
+                    <th>Nascimento</th>
+                </tr>
+            </thead>
+            
+            <tbody></tbody>
+        </table>
+        
+ 		<div id="resultados"></div>
+	</div>
+</body>
+</html>
